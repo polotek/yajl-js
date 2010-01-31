@@ -16,6 +16,7 @@ class Handle : public node::EventEmitter
     Initialize ( v8::Handle<v8::Object> target );
 
     static v8::Handle<v8::Value> Parse( const v8::Arguments& args );
+    static v8::Handle<v8::Value> ParseComplete( const v8::Arguments& args );
 
   protected:
     static v8::Handle<v8::Value>
@@ -25,6 +26,8 @@ class Handle : public node::EventEmitter
     ~Handle();
 
   private:
+    v8::Handle<v8::Value> Parse( unsigned char*, int );
+    v8::Handle<v8::Value> ParseComplete();
     yajl_handle yc_handle;
     yajl_callbacks callbacks;
 };

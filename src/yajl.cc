@@ -13,6 +13,17 @@
 using namespace v8;
 using namespace node;
 
+/*
+ * Macro from the sqlite3 bindings
+ * http://github.com/grumdrig/node-sqlite/blob/master/sqlite3_bindings.cc
+ * by Eric Fredricksen
+ */
+#define REQ_STR_ARG(I, VAR)                                             \
+      if (args.Length() <= (I) || !args[I]->IsString())                     \
+    return ThrowException(Exception::TypeError(                         \
+                                  String::New("Argument " #I " must be a string"))); \
+  String::Utf8Value VAR(args[I]->ToString());
+
 namespace yajljs {
 void Handle::Initialize ( v8::Handle<v8::Object> target )
 {
@@ -24,6 +35,7 @@ void Handle::Initialize ( v8::Handle<v8::Object> target )
     t->InstanceTemplate()->SetInternalFieldCount(1);
 
     NODE_SET_PROTOTYPE_METHOD( t, "parse", Parse );
+    NODE_SET_PROTOTYPE_METHOD( t, "parseComplete", ParseComplete );
     target->Set( v8::String::NewSymbol( "Handle"), t->GetFunction() );
 }
 
@@ -72,13 +84,52 @@ Handle::~Handle()
     yajl_free( yc_handle );
 }
 
-}
-
-v8::Handle<Value> yajljs::Handle::Parse( const Arguments& args )
+v8::Handle<Value> Handle::Parse( const Arguments& args )
 {
     HandleScope scope;
-    std::cerr << "PARSING\n";
+
+    REQ_STR_ARG(0, parseString);
+
+    Handle *yh = Unwrap<Handle>( args.This() );
+
+    yh->Parse( const_cast<unsigned char*>( (unsigned char *) *parseString ), parseString.length() );
+    //yajl_parse( yh->yc_handle, const_cast<unsigned char*>((unsigned char *)*parseString), parseString.length() );
+    // fix this we probably want to return status, or maybe raise an exception
     return args.This();
+}
+
+v8::Handle<Value> Handle::ParseComplete( const Arguments& args )
+{
+    HandleScope scope;
+    Handle *yh = Unwrap<Handle>( args.This() );
+    yh->ParseComplete();
+}
+
+v8::Handle<Value> Handle::Parse( unsigned char* str, int len )
+{
+    int status = yajl_parse( yc_handle, str, len );
+    if( status != yajl_status_ok
+        && status != yajl_status_insufficient_data )
+    {
+        unsigned char *errorMsg = yajl_get_error( yc_handle, 1, str, len );
+        Local<Value> args[1] = { String::New( (char *)errorMsg ) };
+        Emit( String::New( "error" ), 1, args );
+        yajl_free_error( yc_handle, errorMsg );
+    }
+}
+
+v8::Handle<Value> Handle::ParseComplete()
+{
+    int status = yajl_parse_complete( yc_handle );
+    if( status != yajl_status_ok
+        && status != yajl_status_insufficient_data )
+    {
+        unsigned char *errorMsg = yajl_get_error( yc_handle, 1, (unsigned char *)"", 0 );
+        Local<Value> args[1] = { String::New( (char *)errorMsg ) };
+        Emit( String::New( "error" ), 1, args );
+        yajl_free_error( yc_handle, errorMsg );
+    }
+}
 }
 
 extern "C" void
