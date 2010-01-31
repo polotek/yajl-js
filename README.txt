@@ -3,7 +3,7 @@ Yajl-js
 Nikhil Marathe <nsm.nikhil@gmail.com>
 Version, 0.5, 31st Jan 2010
 
-yajl-js aims to be a complete binding to the http://lloyd.github.com/yajl/[yajl] JSON parser by Lloyd Hilaiel.
+yajl-js aims to be a complete binding to the Yajl (http://lloyd.github.com/yajl/) JSON parser by Lloyd Hilaiel.
 yajl is a SAX-style event-driven parser well suited to JavaScript programming style.
 
 == Current Status
