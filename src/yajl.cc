@@ -52,11 +52,19 @@ Handle::New (const v8::Arguments& args)
 
 Handle::Handle( yajl_parser_config cfg ) : EventEmitter()
 {
-    callbacks.yajl_null = onNull;
-    callbacks.yajl_boolean = onBoolean;
+    callbacks.yajl_null = OnNull;
+    callbacks.yajl_boolean = OnBoolean;
+    callbacks.yajl_integer = OnInteger;
+    callbacks.yajl_double = OnDouble;
+    callbacks.yajl_number = OnNumber;
+    callbacks.yajl_string = OnString;
+    callbacks.yajl_start_map = OnStartMap;
+    callbacks.yajl_map_key = OnMapKey;
+    callbacks.yajl_end_map = OnEndMap;
+    callbacks.yajl_start_array = OnStartArray;
+    callbacks.yajl_end_array = OnEndArray;
     
-    // TODO expose
-    yc_handle = yajl_alloc( &callbacks, &cfg, NULL, NULL );
+    yc_handle = yajl_alloc( &callbacks, &cfg, NULL, this);
 }
 
 Handle::~Handle()
