@@ -9,20 +9,95 @@
 using namespace v8;
 using namespace node;
 
+#define INIT_CB( ctx )\
+    HandleScope scope;\
+    Handle *yh = static_cast<Handle *>( ctx )
+
 namespace yajljs {
-int onNull( void *ctx )
+int OnNull( void *ctx )
 {
-    Handle *yh = static_cast<Handle *>( ctx );
+    INIT_CB( ctx );
     yh->Emit( v8::String::New("null"), 0, NULL );
+    return 1;
 }
 
-int onBoolean( void *ctx, int b )
+int OnBoolean( void *ctx, int b )
 {
-    HandleScope scope;
-    Handle *yh = static_cast<Handle *>( ctx );
-
-    Local<Value> args[] = { Integer::New( b ) };
+    INIT_CB( ctx );
+    Local<Value> args[1] = { Integer::New( b ) };
     yh->Emit( v8::String::New("boolean"), 1, args );
+    return 1;
+}
+
+int OnInteger( void *ctx, long b )
+{
+    INIT_CB( ctx );
+
+    Local<Value> args[1] = { Integer::New( b ) };
+    yh->Emit( String::New("integer"), 1, args );
+    return 1;
+}
+
+int OnDouble( void *ctx, double b )
+{
+    INIT_CB( ctx );
+
+    Local<Value> args[1] = { Number::New( b ) };
+    yh->Emit( String::New("double"), 1, args );
+    return 1;
+}
+
+int OnNumber( void *ctx, const char *numberVal, unsigned int numberLen )
+{
+    INIT_CB( ctx );
+
+    Local<Value> args[1] = { String::New( numberVal, numberLen ) };
+    yh->Emit( String::New("number"), 1, args );
+    return 1;
+}
+
+int OnString( void *ctx, const unsigned char *stringVal, unsigned int stringLen )
+{
+    INIT_CB( ctx );
+    Local<Value> args[1] = { String::New( (char *)stringVal, stringLen ) };
+    yh->Emit( String::New("string"), 1, args );
+    return 1;
+}
+
+int OnStartMap( void *ctx )
+{
+    INIT_CB( ctx );
+    yh->Emit( String::New("startMap"), 0, NULL );
+    return 1;
+}
+
+int OnMapKey( void *ctx, const unsigned char *key, unsigned int stringLen )
+{
+    INIT_CB( ctx );
+    Local<Value> args[1] = { String::New( (char *)key, stringLen ) };
+    yh->Emit( String::New("mapKey"), 1, args );
+    return 1;
+}
+
+int OnEndMap( void *ctx )
+{
+    INIT_CB( ctx );
+    yh->Emit( String::New("endMap"), 0, NULL );
+    return 1;
+}
+
+int OnStartArray( void *ctx )
+{
+    INIT_CB( ctx );
+    yh->Emit( String::New("startArray"), 0, NULL );
+    return 1;
+}
+
+int OnEndArray( void *ctx )
+{
+    INIT_CB( ctx );
+    yh->Emit( String::New("endArray"), 0, NULL );
+    return 1;
 }
 
 void
