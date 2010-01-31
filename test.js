@@ -1,37 +1,7 @@
-// The complete reformatter in javascript
+// Will be a complete reformatter in javascript similar to the Yajl reformatter
 var sys = require('sys');
 var posix = require('posix');
 var yajl = require('./src/yajl');
-
-var callbacks = {
-    onNull : function(gen) {
-        gen.addNull();
-    },
-    onBoolean : function(gen, bool) {
-        gen.boolean( bool );
-    },
-    onNumber : function(gen, str) {
-        gen.number( str );
-    },
-    onString : function(gen, str) {
-        gen.string( str );
-    },
-    onMapKey : function(gen, key) {
-        gen.string( key );
-    },
-    onStartMap : function(gen) {
-        g.openMap();
-    },
-    onEndMap : function(gen) {
-        g.closeMap();
-    },
-    onStartArray : function(gen) {
-        g.openArray();
-    },
-    onEndArray : function(gen) {
-        g.closeArray();
-    }
-};
 
 function usage() {
     sys.error( "Usage: %s <filename>\n"
@@ -62,28 +32,53 @@ else if( process.ARGV.length != 2 ) {
     usage();
 }
 
-var g = new yajl.Generator( conf, null );
-
 var handle = yajl.createHandle();
 handle.addListener( "null", function() {
     sys.debug("Nullify");
+});
+
+handle.addListener( "boolean", function(b) {
+    sys.debug(b);
+});
+
+handle.addListener( "number", function(n) {
+    sys.debug("Num: " + n);
+});
+
+handle.addListener( "string", function(s) {
+    sys.debug("String: " + s);
+});
+
+handle.addListener( "mapKey", function(k) {
+    sys.debug("Key: " + k );
+});
+
+handle.addListener( "startMap", function() {
+    sys.debug("{");
+});
+
+handle.addListener( "endMap", function() {
+    sys.debug("}");
+});
+
+handle.addListener( "startArray", function() {
+    sys.debug("[");
+});
+
+handle.addListener( "endArray", function() {
+    sys.debug("]");
+});
+
+handle.addListener( "error", function( errorString ) {
+    sys.error("Error parsing json: " + errorString );
 });
 
 var done = false;
 
 process.stdio.open();
 process.stdio.addListener( "data", function( data ) {
-    var stat = handle.parse(data);
-//    if( stat != yajl.STATUS_OK &&
-//        stat != yajl.STATUS_INSUFFICIENT_DATA ) {
-//        sys.error( handle.error( yajl.ERROR_VERBOSE, data ) );
-//    }
+    handle.parse(data);
 });
-//
-//process.stdio.addListener( "close", function() {
-//    var stat = handle.parseComplete();
-//    if( stat != yajl.STATUS_OK )
-//        sys.error( handle.error( yajl.ERROR_VERBOSE, data ) );
-//    else
-//        process.stdio.write( g.buffer() );
-//});
+process.stdio.addListener( "close", function() {
+    handle.parseComplete();
+});
