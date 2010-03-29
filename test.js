@@ -1,6 +1,5 @@
 // Will be a complete reformatter in javascript similar to the Yajl reformatter
 var sys = require('sys');
-var posix = require('posix');
 var yajl = require('./src/yajl');
 
 function usage() {
@@ -34,7 +33,7 @@ else if( process.ARGV.length != 2 ) {
 
 var handle = yajl.createHandle();
 handle.addListener( "null", function() {
-    sys.debug("Nullify");
+    sys.debug("null");
 });
 
 handle.addListener( "boolean", function(b) {
@@ -75,10 +74,10 @@ handle.addListener( "error", function( errorString ) {
 
 var done = false;
 
-process.stdio.open();
-process.stdio.addListener( "data", function( data ) {
-    handle.parse(data);
+stdin = process.openStdin();
+stdin.addListener( "data", function( data ) {
+    handle.parse(data.toString());
 });
-process.stdio.addListener( "close", function() {
+stdin.addListener( "end", function() {
     handle.parseComplete();
 });
