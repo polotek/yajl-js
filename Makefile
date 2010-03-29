@@ -1,4 +1,4 @@
-all: yajl-js doc
+all: yajl-js 
 
 yajl-js:
 	node-waf configure build
@@ -15,7 +15,3 @@ distclean:
 uninstall:
 	node-waf uninstall
 
-doc: doc/README.html
-
-doc/README.html: doc/README.txt
-	asciidoc -a toc -a linkcss -o doc/README.html doc/README.txt
