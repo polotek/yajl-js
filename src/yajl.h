@@ -55,8 +55,8 @@ class Handle : public node::EventEmitter
     ~Handle();
 
   private:
-    v8::Handle<v8::Value> Parse( unsigned char*, int );
-    v8::Handle<v8::Value> ParseComplete();
+    void Parse( unsigned char*, int );
+    void ParseComplete();
     yajl_handle yc_handle;
     yajl_callbacks callbacks;
 };

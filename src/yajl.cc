@@ -111,6 +111,7 @@ Handle::Handle( yajl_parser_config cfg ) : EventEmitter()
 Handle::~Handle()
 {
     yajl_free( yc_handle );
+    yc_handle = NULL;
 }
 
 v8::Handle<Value> Handle::Parse( const Arguments& args )
@@ -132,9 +133,10 @@ v8::Handle<Value> Handle::ParseComplete( const Arguments& args )
     HandleScope scope;
     Handle *yh = Unwrap<Handle>( args.This() );
     yh->ParseComplete();
+    return Null();
 }
 
-v8::Handle<Value> Handle::Parse( unsigned char* str, int len )
+void Handle::Parse( unsigned char* str, int len )
 {
     int status = yajl_parse( yc_handle, str, len );
     if( status != yajl_status_ok
@@ -147,9 +149,9 @@ v8::Handle<Value> Handle::Parse( unsigned char* str, int len )
     }
 }
 
-v8::Handle<Value> Handle::ParseComplete()
+void Handle::ParseComplete()
 {
-    int status = yajl_parse_complete( yc_handle );
+    yajl_status status = yajl_parse_complete( yc_handle );
     if( status != yajl_status_ok
         && status != yajl_status_insufficient_data )
     {
