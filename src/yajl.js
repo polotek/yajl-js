@@ -39,9 +39,10 @@ exports.Generator = function( conf ) {
  *      { allowComments : true, checkUTF8 : true }
  */
 exports.createHandle = function(parser_config) {
-    cfg = process.mixin( {
-                allowComments : true
-              , checkUTF8 : true
-            }, parser_config );
+    parser_config = parser_config || {};
+    cfg = {
+            allowComments : parser_config.allowComments || true
+          , checkUTF8 : parser_config.checkUTF8 || true
+          };
     return new yajl.Handle( cfg );
 }

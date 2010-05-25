@@ -26,8 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-#include <iostream>
+#include "yajl.h"
 
 #include <yajl/yajl_parse.h>
 #include <yajl/yajl_gen.h>
@@ -37,7 +36,6 @@
 #include <node/node_events.h>
 
 #include "callbacks.h"
-#include "yajl.h"
 
 using namespace v8;
 using namespace node;
